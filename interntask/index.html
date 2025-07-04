@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Advanced Form Validation</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .form-card {
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 350px;
+        }
+        
+        .form-card h2 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .form-group {
+            position: relative;
+            margin-bottom: 25px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 10px;
+            font-size: 16px;
+            border: 1.5px solid #ccc;
+            border-radius: 6px;
+            background: none;
+            outline: none;
+        }
+        
+        .form-group label {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            color: #888;
+            pointer-events: none;
+            transform: translateY(-50%);
+            background: white;
+            padding: 0 5px;
+            transition: 0.2s ease;
+        }
+        
+        .form-group input:focus+label,
+        .form-group input:not(:placeholder-shown)+label {
+            top: -10px;
+            font-size: 12px;
+            color: #333;
+        }
+        
+        .form-group .error {
+            color: red;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .form-group input.valid {
+            border-color: green;
+        }
+        
+        .form-group input.invalid {
+            border-color: red;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.4s ease;
+            z-index: 1000;
+        }
+        
+        .toast.error {
+            background-color: #dc3545;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="form-card">
+        <h2>Register</h2>
+        <form id="myForm" novalidate>
+            <div class="form-group">
+                <input type="text" id="name" placeholder=" " required>
+                <label for="name">Full Name</label>
+                <div id="nameError" class="error">Name must be at least 3 characters.</div>
+            </div>
+
+            <div class="form-group">
+                <input type="email" id="email" placeholder=" " required>
+                <label for="email">Email Address</label>
+                <div id="emailError" class="error">Please enter a valid email.</div>
+            </div>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <div id="toast" class="toast">Form submitted successfully!</div>
+
+    <script>
+        const nameInput = document.getElementById("name");
+        const emailInput = document.getElementById("email");
+        const nameError = document.getElementById("nameError");
+        const emailError = document.getElementById("emailError");
+        const toast = document.getElementById("toast");
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        function showToast(message, isError = false) {
+            toast.textContent = message;
+            toast.className = "toast show" + (isError ? " error" : "");
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
+        function validateName() {
+            const name = nameInput.value.trim();
+            if (name.length < 3) {
+                nameError.style.display = "block";
+                nameInput.classList.add("invalid");
+                nameInput.classList.remove("valid");
+                return false;
+            } else {
+                nameError.style.display = "none";
+                nameInput.classList.add("valid");
+                nameInput.classList.remove("invalid");
+                return true;
+            }
+        }
+
+        function validateEmail() {
+            const email = emailInput.value.trim();
+            if (!emailRegex.test(email)) {
+                emailError.style.display = "block";
+                emailInput.classList.add("invalid");
+                emailInput.classList.remove("valid");
+                return false;
+            } else {
+                emailError.style.display = "none";
+                emailInput.classList.add("valid");
+                emailInput.classList.remove("invalid");
+                return true;
+            }
+        }
+
+        nameInput.addEventListener("input", validateName);
+        emailInput.addEventListener("input", validateEmail);
+
+        document.getElementById("myForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const isNameValid = validateName();
+            const isEmailValid = validateEmail();
+
+            if (isNameValid && isEmailValid) {
+                showToast("Form submitted successfully!");
+                this.reset();
+                nameInput.classList.remove("valid");
+                emailInput.classList.remove("valid");
+            } else {
+                showToast("Please correct the errors and try again.", true);
+            }
+        });
+    </script>
+
+</body>
+
+</html>
